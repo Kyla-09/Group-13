@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="./css/site.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="toggle">
+        <a id="toggle-nav"><i class="fa fa-navicon cog"></i></a>
+      </div>
+    </div>
+    <div class="container">
+      <div class="sidebar" id="sidebar">
+        <a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a>
+        <a href="form.html"><i class="fa fa-shopping-cart"></i> Forms</a>
+        <a href="tables.html"><i class="fa fa-shopping-bag"></i> Tables</a>
+      </div>
+      <div class="content">
+        <div class="summary-container">
+          <div class="summary">
+            <div class="summary-icon"><i class="fa fa-users"></i></div>
+            <div class="summary-content">
+              <div class="summary-heading">Users</div>
+              <div><h2>0</h2></div>
+            </div>
+          </div>
+          <div class="summary">
+            <div class="summary-icon"><i class="fa fa-signal"></i></div>
+            <div class="summary-content">
+              <div class="summary-heading">Products</div>
+              <div><h2>0</h2></div>
+            </div>
+          </div>
+          <div class="summary">
+            <div class="summary-icon"><i class="fa fa-shopping-cart"></i></div>
+            <div class="summary-content">
+              <div class="summary-heading">Sales</div>
+              <div><h2>0</h2></div>
+            </div>
+          </div>
+          <div class="summary">
+            <div class="summary-icon"><i class="fa fa-line-chart"></i></div>
+            <div class="summary-content">
+              <div class="summary-heading">Profit</div>
+              <div><h2>0</h2></div>
+            </div>
+          </div>
+        </div>
+    
+          <!-- This is the chart content section-->
+           <div class="charts-container">
+            <div class="chart-card">
+              <h4 class="magenta">Scatter: Sales</h4>
+              <canvas id="salesChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <h4 class="purple">Line: Visitors</h4>
+              <canvas id="visitorsChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <h4 class="red">Pie: Sold Products</h4>
+              <canvas id="soldProductsChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <h4 class="l">Bar: Top Products</h4>
+              <canvas id="topProductsChart"></canvas>
+            </div>
+          </div>
+          <h4>Implement here..</h4>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+     $("document").ready(() => {
+    $("#toggle-nav").click((e) => {
+      e.preventDefault();
+      $("#sidebar").toggle(); 
+    });
+  });
+
+  $("document").ready(() => {
+    fetch("http://localhost:3000/dash_stats")
+      .then(res => res.json())
+      .then(data => {
+        $(".summary:contains('Users') h2").text(data.users);
+        $(".summary:contains('Products') h2").text(data.products);
+        $(".summary:contains('Sales') h2").text(data.sales);
+        $(".summary:contains('Profit') h2").text(data.profit);
+      })
+      .catch(err => {
+        console.error("Error loading dashboard stats:", err);
+      });
+  });
+ $("document").ready(() => {
+    fetch("http://localhost:3000/sales")
+      .then(res => res.json())
+      .then(data => {
+        new Chart(document.getElementById("salesChart"), {
+          type: "scatter",
+          data: {
+            datasets: [{
+              label: "Sales",
+              data: data,
+              backgroundColor: "rgba(75,192,192,0.6)"
+            }]
+          },
+          options: {
+            scales: {
+              x: { title: { display: true, text: "X" } },
+              y: { title: { display: true, text: "Y" } }
+            }
+          }
+        });
+      });
+  
+
+     });
+
+    </script>
+  </body>
+</html>
