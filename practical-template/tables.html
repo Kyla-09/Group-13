@@ -34,8 +34,8 @@
           <div class="section-container">
             <div class="section-header">Details of avalialble products</div>
             <div class="section-content">
-              <!-- section content-->
-              <h4>Implement here..</h4>
+              <div id="loader" class="loader"></div>
+               <div id="table-container"></div>
             </div>
           </div>
         </div>
@@ -44,9 +44,152 @@
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-      $("document").ready(() => {
-        //
-      });
-    </script>
+        $("document").ready(() => {
+          $("#loader").show();
+          $("#table-container").hide();
+        
+          setTimeout(() => {
+            fetch("http://localhost:3000/products")
+              .then(res => res.json())
+              .then(products => {
+                $("#loader").hide();
+                buildTable(products);
+              })
+              .catch(err => {
+                console.error("Error loading products:", err);
+                $("#loader").hide();
+                $("#table-container").html("<p>Failed to load data.</p>");
+              });
+          }, 3000);
+        
+          // a function to build the table
+          function buildTable(products) {
+            let html = `
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th><th>Name</th><th>Price</th>
+                    <th>Quantity</th><th>Description</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+            `;
+        
+            products.forEach(p => {
+              html += `
+                <tr>
+                  <td>${p.id}</td>
+                  <td>${p.name}</td>
+                  <td>${p.price}</td>
+                  <td>${p.quantity}</td>
+                  <td>${p.description}</td>
+                  <td>
+                    <button class="form-button edit-btn" data-id="${p.id}">Edit</button>
+                    <button class="form-button delete-btn" data-id="${p.id}">Delete</button>
+                  </td>
+                </tr>
+              `;
+            });
+        
+            html += "</tbody></table>";
+            $("#table-container").html(html);
+          }
+        
+          // to Handle Delete
+          $(document).on("click", ".delete-btn", function () {
+            const id = $(this).data("id");
+            if (confirm("Are you sure you want to delete this product?")) {
+              fetch(`http://localhost:3000/products/${id}`, {
+                method: "DELETE"
+              })
+                .then(res => res.json())
+                .then(data => {
+                  alert(data.message || data.error);
+                  location.reload();
+                })
+                .catch(err => {
+                  console.error(err);
+                  alert("Failed to delete product");
+                });
+            }
+          });
+        
+          // to Handle the Editing
+          $(document).on("click", ".edit-btn", function () {
+            const id = $(this).data("id");
+        
+            fetch(`http://localhost:3000/products`)
+              .then(res => res.json())
+              .then(products => {
+                const product = products.find(p => p.id == id);
+                if (product) {
+
+                  const query = new URLSearchParams(product).toString();
+                  window.location.href = `form.html?${query}`;
+                }
+              });
+          });
+        });
+
+// to pre-fill the form when editing
+        $("document").ready(() => {
+          
+          const params = new URLSearchParams(window.location.search);
+          if (params.has("id")) {
+            $("input[type='text']").val(params.get("name"));
+            $("input[type='number']").eq(0).val(params.get("price"));
+            $("#quantity").val(params.get("quantity"));
+            $("textarea").val(params.get("description"));
+            $("#save").text("Update");
+            $("#save").data("id", params.get("id"));
+          }
+        
+          $("#save").click((e) => {
+            e.preventDefault();
+        
+            const name = $("input[type='text']").val().trim();
+            const price = $("input[type='number']").eq(0).val().trim();
+            const quantity = $("#quantity").val().trim();
+            const description = $("textarea").val().trim();
+        
+            // for validation
+            if (name.length < 5 || name.length > 50) return alert("Invalid product name.");
+            if (!price || isNaN(price) || parseFloat(price) <= 0) return alert("Invalid price.");
+            if (!quantity || isNaN(quantity) || parseInt(quantity) <= 0) return alert("Invalid quantity.");
+            if (description.length < 5 || description.length > 200) return alert("Invalid description.");
+        
+            if ($("#save").data("id")) {
+             
+              fetch("http://localhost:3000/products", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  id: $("#save").data("id"),
+                  name, price, quantity, description
+                })
+              })
+                .then(res => res.json())
+                .then(data => {
+                  alert("Product updated successfully!");
+                  window.location.href = "tables.html";
+                });
+            } else {
+            
+              fetch("http://localhost:3000/products", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, price, quantity, description })
+              })
+                .then(res => res.json())
+                .then(data => {
+                  alert("Product added successfully!");
+                  window.location.href = "tables.html";
+                });
+            }
+          });
+        });
+         </script>
   </body>
 </html>
+ 
