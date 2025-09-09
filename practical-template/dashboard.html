@@ -73,7 +73,6 @@
               <canvas id="topProductsChart"></canvas>
             </div>
           </div>
-          <h4>Implement here..</h4>
         </div>
       </div>
     </div>
@@ -100,7 +99,7 @@
         console.error("Error loading dashboard stats:", err);
       });
   });
- $("document").ready(() => {
+$("document").ready(() => {
     fetch("http://localhost:3000/sales")
       .then(res => res.json())
       .then(data => {
@@ -123,7 +122,63 @@
       });
   
 
-     });
+    fetch("http://localhost:3000/visitors")
+      .then(res => res.json())
+      .then(data => {
+        new Chart(document.getElementById("visitorsChart"), {
+          type: "line",
+          data: {
+            labels: data.day,
+            datasets: [{
+              label: "Visitors",
+              data: data.count,
+              borderColor: "blue",
+              fill: false,
+              tension: 0.1
+            }]
+          }
+        });
+      });
+  
+
+    fetch("http://localhost:3000/sold_products")
+      .then(res => res.json())
+      .then(data => {
+        new Chart(document.getElementById("soldProductsChart"), {
+          type: "pie",
+          data: {
+            labels: data.category,
+            datasets: [{
+              label: "Sold Products",
+              data: data.count,
+              backgroundColor: ["red","blue","green","orange","purple"]
+            }]
+          }
+        });
+      });
+  
+
+    fetch("http://localhost:3000/top_products")
+      .then(res => res.json())
+      .then(data => {
+        new Chart(document.getElementById("topProductsChart"), {
+          type: "bar",
+          data: {
+            labels: data.product,
+            datasets: [{
+              label: "Top Products",
+              data: data.count,
+              backgroundColor: "rgba(54,162,235,0.6)"
+            }]
+          },
+          options: {
+            scales: {
+              y: { beginAtZero: true }
+            }
+          }
+        });
+      });
+  });
 
     </script>
   </body>

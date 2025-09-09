@@ -73,7 +73,6 @@
           $("#myModal").css("display", "none");
         });
       });
-      //form validation
       
 $("document").ready(() => {
           $("#save").click((e) => {
@@ -107,7 +106,7 @@ $("document").ready(() => {
             }
       
 
-            fetch("http://localhost:5000/products", {
+            fetch("http://localhost:3000/products", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -124,18 +123,17 @@ $("document").ready(() => {
                 if (data.error) {
                   $("#myModal p").text("Error: " + data.error);
                 } else {
-                  $("#myModal p").text("✅ Product added successfully!");
+                  $("#myModal p").text("Product added successfully!");
                 }
                 $("#myModal").css("display", "block");
               })
               .catch(err => {
                 console.error(err);
-                $("#myModal p").text("⚠ Failed to save product.");
+                $("#myModal p").text(" Failed to save product.");
                 $("#myModal").css("display", "block");
               });
           });
       
-          // Close modal
           $("#span").click(() => {
             $("#myModal").css("display", "none");
           });
